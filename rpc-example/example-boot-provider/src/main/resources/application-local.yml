@@ -1,0 +1,22 @@
+# local registry (no nacos)
+aoaojiao:
+  rpc:
+    registry:
+      enabled: false
+      mode: local
+      monitor:
+        enabled: true
+        port: 18080
+        intervalSeconds: 5
+    server:
+      host: 127.0.0.1
+      port: 9000
+      businessThreads: 4
+    client:
+      loadBalancer: roundRobin
+      faultTolerance: failFast
+      retryTimes: 0
+      rateLimit: 0
+      circuitFailureThreshold: 3
+      circuitOpenMillis: 3000
+      timeoutMillis: 3000

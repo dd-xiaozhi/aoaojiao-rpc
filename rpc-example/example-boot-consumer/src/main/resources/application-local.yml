@@ -1,0 +1,18 @@
+# local registry (no nacos)
+aoaojiao:
+  rpc:
+    registry:
+      enabled: false
+      mode: local
+      monitor:
+        enabled: true
+        port: 18081
+        intervalSeconds: 5
+    client:
+      loadBalancer: random
+      faultTolerance: failRetry
+      retryTimes: 1
+      rateLimit: 100
+      circuitFailureThreshold: 2
+      circuitOpenMillis: 2000
+      timeoutMillis: 2000

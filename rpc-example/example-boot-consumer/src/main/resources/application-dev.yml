@@ -1,0 +1,13 @@
+aoaojiao:
+  rpc:
+    registry:
+      serverAddr: 127.0.0.1:8848
+      enabled: true
+    client:
+      loadBalancer: random
+      faultTolerance: failRetry
+      retryTimes: 1
+      rateLimit: 100
+      circuitFailureThreshold: 2
+      circuitOpenMillis: 2000
+      timeoutMillis: 2000

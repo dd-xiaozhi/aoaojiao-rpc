@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  nacos:
+    image: nacos/nacos-server:v2.4.1
+    container_name: aoaojiao-nacos
+    environment:
+      - MODE=standalone
+    ports:
+      - "8848:8848"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8848/nacos/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10

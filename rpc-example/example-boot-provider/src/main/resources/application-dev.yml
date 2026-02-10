@@ -1,0 +1,17 @@
+aoaojiao:
+  rpc:
+    registry:
+      serverAddr: 127.0.0.1:8848
+      enabled: true
+    server:
+      host: 127.0.0.1
+      port: 9000
+      businessThreads: 4
+    client:
+      loadBalancer: roundRobin
+      faultTolerance: failFast
+      retryTimes: 0
+      rateLimit: 0
+      circuitFailureThreshold: 3
+      circuitOpenMillis: 3000
+      timeoutMillis: 3000
