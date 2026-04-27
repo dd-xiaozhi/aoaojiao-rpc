@@ -7,9 +7,12 @@ import com.aoaojiao.rpc.client.cluster.circuit.CircuitBreaker;
 import com.aoaojiao.rpc.client.cluster.fault.FailFast;
 import com.aoaojiao.rpc.client.cluster.fault.FailRetry;
 import com.aoaojiao.rpc.client.cluster.fault.FaultTolerance;
+import com.aoaojiao.rpc.client.cluster.fault.SmartRetryFaultTolerance;
 import com.aoaojiao.rpc.client.cluster.impl.RandomLoadBalancer;
 import com.aoaojiao.rpc.client.cluster.impl.RoundRobinLoadBalancer;
 import com.aoaojiao.rpc.client.cluster.limit.FixedWindowRateLimiter;
+import com.aoaojiao.rpc.client.cluster.limit.SlidingWindowRateLimiter;
+import com.aoaojiao.rpc.client.cluster.limit.TokenBucketRateLimiter;
 import com.aoaojiao.rpc.client.cluster.limit.RateLimiter;
 import com.aoaojiao.rpc.common.service.ServiceKey;
 import com.aoaojiao.rpc.registry.ServiceDiscovery;
@@ -91,8 +94,8 @@ public class BootRpcReferenceInjector implements BeanPostProcessor {
 
         LoadBalancer lb = createLoadBalancer(lbName);
         FaultTolerance ft = createFaultTolerance(ftName, retryTimes);
-        RateLimiter limiter = rateLimit > 0 ? new FixedWindowRateLimiter(rateLimit) : null;
-        CircuitBreaker breaker = new CircuitBreaker(circuitFailures, circuitOpen);
+        RateLimiter limiter = createRateLimiter(rateLimit);
+        CircuitBreaker breaker = createCircuitBreaker(circuitFailures, circuitOpen);
 
         ClusterClient clusterClient = new ClusterClient(discovery, lb, ft, limiter, breaker, timeout);
         ClusterRpcClientProxyFactory factory = new ClusterRpcClientProxyFactory(clusterClient);
@@ -107,9 +110,34 @@ public class BootRpcReferenceInjector implements BeanPostProcessor {
     }
 
     private FaultTolerance createFaultTolerance(String name, int retryTimes) {
+        if ("smartRetry".equalsIgnoreCase(name)) {
+            return new SmartRetryFaultTolerance(retryTimes);
+        }
         if ("failRetry".equalsIgnoreCase(name)) {
             return new FailRetry(retryTimes);
         }
         return new FailFast();
+    }
+
+    private RateLimiter createRateLimiter(long rateLimit) {
+        if (rateLimit <= 0) {
+            return null;
+        }
+        String rateLimitType = properties.getClient().getRateLimitType();
+        if ("slidingWindow".equalsIgnoreCase(rateLimitType)) {
+            return new SlidingWindowRateLimiter(rateLimit);
+        } else if ("tokenBucket".equalsIgnoreCase(rateLimitType)) {
+            return new TokenBucketRateLimiter(rateLimit);
+        }
+        return new FixedWindowRateLimiter(rateLimit);
+    }
+
+    private CircuitBreaker createCircuitBreaker(int circuitFailures, long circuitOpen) {
+        String mode = properties.getClient().getCircuitBreakerMode();
+        if ("failureRate".equalsIgnoreCase(mode)) {
+            // 失败率模式：circuitFailures 作为最小请求数，0.5 作为失败率阈值
+            return CircuitBreaker.createFailureRateBreaker(circuitFailures, 0.5, circuitOpen);
+        }
+        return CircuitBreaker.createCountingBreaker(circuitFailures, circuitOpen);
     }
 }

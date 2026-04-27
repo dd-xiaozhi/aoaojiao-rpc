@@ -1,0 +1,3 @@
+com.aoaojiao.rpc.common.serialization.HessianSerializer
+com.aoaojiao.rpc.common.serialization.JsonSerializer
+com.aoaojiao.rpc.common.serialization.KryoSerializer
