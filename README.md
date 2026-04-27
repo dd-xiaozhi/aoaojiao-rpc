@@ -137,5 +137,26 @@ Java RPC 框架与服务治理基础设施
 
 ---
 
+## 📊 优化与改进
+
+详细优化建议请查看 [docs/optimization-review.md](docs/optimization-review.md)
+
+### 🔴 高优先级
+- 连接池实现（高并发性能瓶颈）
+- PendingRequests 超时清理（内存泄漏风险）
+- 服务调用方法匹配优化
+
+### 🟡 中优先级
+- 序列化扩展（JSON/Protobuf SPI）
+- 重试策略优化（指数退避）
+- 限流器算法改进（滑动窗口）
+- 可观测性增强（Prometheus 格式）
+
+### 🟢 长期规划
+- 安全机制（TLS/认证）
+- 链路追踪集成
+
+---
+
 ## 📄 许可
 内部学习与实验用途。若需开源发布，请补充 LICENSE。
